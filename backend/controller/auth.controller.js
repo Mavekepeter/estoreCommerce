@@ -71,6 +71,8 @@ export const login = async(req,res)=>{
                 email:user.email,
                 role:user.role,
             })
+        }else{
+            res.status(400).json({message:"Invalid email or password"})
         }
 
 
