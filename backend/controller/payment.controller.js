@@ -1,7 +1,8 @@
 import Coupon from "../models/coupon.model.js";
 import Order from "../models/order.model.js";
 import { stripe } from "../lib/stripe.js";
-
+import { sendEmail } from "../lib/sendEmail.js";
+import User from "../models/user.model.js"
 export const createCheckoutSession = async (req, res) => {
 	try {
 		const { products, couponCode } = req.body;
@@ -79,19 +80,18 @@ export const checkoutSuccess = async (req, res) => {
 		const session = await stripe.checkout.sessions.retrieve(sessionId);
 
 		if (session.payment_status === "paid") {
+			// Step 1: Deactivate used coupon
 			if (session.metadata.couponCode) {
 				await Coupon.findOneAndUpdate(
 					{
 						code: session.metadata.couponCode,
 						userId: session.metadata.userId,
 					},
-					{
-						isActive: false,
-					}
+					{ isActive: false }
 				);
 			}
 
-			// create a new Order
+			// Step 2: Create a new order
 			const products = JSON.parse(session.metadata.products);
 			const newOrder = new Order({
 				user: session.metadata.userId,
@@ -100,24 +100,46 @@ export const checkoutSuccess = async (req, res) => {
 					quantity: product.quantity,
 					price: product.price,
 				})),
-				totalAmount: session.amount_total / 100, // convert from cents to dollars,
+				totalAmount: session.amount_total / 100,
 				stripeSessionId: sessionId,
 			});
-
 			await newOrder.save();
+
+			// Step 3: Send confirmation email to user
+			const user = await User.findById(session.metadata.userId);
+			if (user?.email) {
+				await sendEmail(
+					user.email,
+					"🎉 Order Confirmation - Your Store",
+					`
+					<h2>Thank you for your order, ${user.name || "Customer"}!</h2>
+					<p>Your order <strong>#${newOrder._id}</strong> has been received and is being processed.</p>
+					<p>Here’s what you ordered:</p>
+					<ul>
+						${products.map(p => `<li>${p.quantity} × ${p.id} @ $${p.price}</li>`).join("")}
+					</ul>
+					<p>Total Paid: <strong>$${(session.amount_total / 100).toFixed(2)}</strong></p>
+					<p>We’ll update you once your order has shipped. Estimated delivery: <strong>3–5 business days</strong>.</p>
+					<br />
+					<p>Thanks for shopping with us!</p>
+					<p><strong>Your Store Team</strong></p>
+				`
+				);
+			}
 
 			res.status(200).json({
 				success: true,
-				message: "Payment successful, order created, and coupon deactivated if used.",
+				message: "Payment successful, order created, email sent, and coupon deactivated if used.",
 				orderId: newOrder._id,
 			});
+		} else {
+			res.status(400).json({ message: "Payment not completed yet." });
 		}
 	} catch (error) {
 		console.error("Error processing successful checkout:", error);
 		res.status(500).json({ message: "Error processing successful checkout", error: error.message });
 	}
 };
-
 async function createStripeCoupon(discountPercentage) {
 	const coupon = await stripe.coupons.create({
 		percent_off: discountPercentage,
@@ -141,14 +163,3 @@ async function createNewCoupon(userId) {
 
 	return newCoupon;
 }
-// Function to get OAuth Token
-const getMpesaToken = async () => {
-    const auth = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString("base64");
-
-    const response = await axios.get(`${MPESA_BASE_URL}/oauth/v1/generate?grant_type=client_credentials`, {
-        headers: { Authorization: `Basic ${auth}` },
-    });
-
-    return response.data.access_token;
-};
-

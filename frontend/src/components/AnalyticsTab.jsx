@@ -57,7 +57,7 @@ const AnalyticsTab = () => {
 				/>
 				<AnalyticsCard
 					title='Total Revenue'
-					value={`$${analyticsData.totalRevenue.toLocaleString()}`}
+					value={`${analyticsData.totalRevenue.toLocaleString()}`}
 					icon={DollarSign}
 					color='from-emerald-500 to-lime-700'
 				/>
@@ -102,7 +102,7 @@ export default AnalyticsTab;
 
 const AnalyticsCard = ({ title, value, icon: Icon, color }) => (
 	<motion.div
-		className={`bg-gray-800 rounded-lg p-6 shadow-lg overflow-hidden relative ${color}`}
+		className={`bg-gray-800 rounded-lg p-6 shadow-lg overflow-hidden relative Ksh{color}`}
 		initial={{ opacity: 0, y: 20 }}
 		animate={{ opacity: 1, y: 0 }}
 		transition={{ duration: 0.5 }}

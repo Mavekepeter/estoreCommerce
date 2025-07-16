@@ -40,7 +40,7 @@ const FeaturedProducts = ({ featuredProducts }) => {
 					<div className='overflow-hidden'>
 						<div
 							className='flex transition-transform duration-300 ease-in-out'
-							style={{ transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)` }}
+							style={{ transform: `translateX(-Ksh{currentIndex * (100 / itemsPerPage)}%)` }}
 						>
 							{featuredProducts?.map((product) => (
 								<div key={product._id} className='w-full sm:w-1/2 lg:w-1/3 xl:w-1/4 flex-shrink-0 px-2'>
@@ -55,7 +55,7 @@ const FeaturedProducts = ({ featuredProducts }) => {
 										<div className='p-4'>
 											<h3 className='text-lg font-semibold mb-2 text-white'>{product.name}</h3>
 											<p className='text-emerald-300 font-medium mb-4'>
-												${product.price.toFixed(2)}
+												Ksh{product.price.toFixed(2)}
 											</p>
 											<button
 												onClick={() => addToCart(product)}
@@ -74,7 +74,7 @@ const FeaturedProducts = ({ featuredProducts }) => {
 					<button
 						onClick={prevSlide}
 						disabled={isStartDisabled}
-						className={`absolute top-1/2 -left-4 transform -translate-y-1/2 p-2 rounded-full transition-colors duration-300 ${
+						className={`absolute top-1/2 -left-4 transform -translate-y-1/2 p-2 rounded-full transition-colors duration-300 Ksh{
 							isStartDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-500"
 						}`}
 					>
@@ -84,7 +84,7 @@ const FeaturedProducts = ({ featuredProducts }) => {
 					<button
 						onClick={nextSlide}
 						disabled={isEndDisabled}
-						className={`absolute top-1/2 -right-4 transform -translate-y-1/2 p-2 rounded-full transition-colors duration-300 ${
+						className={`absolute top-1/2 -right-4 transform -translate-y-1/2 p-2 rounded-full transition-colors duration-300 Ksh{
 							isEndDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-500"
 						}`}
 					>

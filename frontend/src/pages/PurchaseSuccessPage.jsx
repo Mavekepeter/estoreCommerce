@@ -35,7 +35,7 @@ const PurchaseSuccessPage = () => {
 
 	if (isProcessing) return "Processing...";
 
-	if (error) return `Error: ${error}`;
+	if (error) return `Error: Ksh{error}`;
 
 	return (
 		<div className='h-screen flex items-center justify-center px-4'>
