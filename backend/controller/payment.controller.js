@@ -105,7 +105,7 @@ export const checkoutSuccess = async (req, res) => {
 			});
 			await newOrder.save();
 
-			// Step 3: Send confirmation email to user
+
 			const user = await User.findById(session.metadata.userId);
 			if (user?.email) {
 				await sendEmail(
